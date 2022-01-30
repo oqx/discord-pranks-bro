@@ -1,0 +1,10 @@
+{
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "editor.codeActionsOnSave": [
+        "source.addMissingImports", // VSCode
+        "source.formatDocument", // Extension: Format Code Action
+        "source.fixAll.eslint", // Extension: ESLint
+      ],
+      "editor.formatOnSave": true, // Enabled via codeActionsOnSave (known order)
+      "eslint.format.enable": true, // Do not mess with this!!
+}
