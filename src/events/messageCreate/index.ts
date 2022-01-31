@@ -1,15 +1,23 @@
 import type { Message, Client } from 'discord.js'
 import * as fromMentions from './mentions'
 import * as fromMedia from './media'
-import { compose } from '@typed/compose'
+import * as fromUtils from '../../utils'
+import * as fromConstants from '../../constants'
+import * as fromCommands from './commands'
+import compose from 'lodash/fp/compose'
 
 const queue = new Map<string, Message>()
 
-const handleMessage = compose(
+const applyGeneralMsgFns = compose(
   fromMedia.respondToEmbedsAndAttachments,
   fromMentions.emoteOnCalloutWithoutExplicitMention,
   fromMentions.respondToMention
 )
+
+const fns = fromCommands as Record<
+  string,
+  (client: Client, msg: Message, subcommands: string[]) => void
+>
 
 /**
  * @summary Event handler for messageCreate events. Handles
@@ -18,6 +26,41 @@ const handleMessage = compose(
 export const messageCreate = {
   once: false,
   async exec(msg: Message, client: Client) {
-    handleMessage({ msg, client, queue })
+    /**
+     * Handles commands.
+     */
+    const commands = fromUtils.getCommand(msg.content)
+    if (
+      commands &&
+      commands.command &&
+      fromUtils.isValidCommand(commands.command)
+    ) {
+      try {
+        /**
+         * 'apply' strings in COMMAND_MAP indicate there's a corresponding
+         * fn. The better approach is to pull COMMAND_MAP out of constants
+         * and actually put functions on it to avoid the weirdness below.
+         *
+         * @TODO Refactor this, adding fns to COMMAND_MAP.
+         */
+        if (fromConstants.COMMAND_MAP[commands.command] !== 'apply') {
+          msg.reply(fromConstants.COMMAND_MAP[commands.command])
+        } else {
+          const fnName = commands.command.slice(1)
+          if (!!fnName && fns[fnName]) {
+            fns[fnName](client, msg, commands.subcommands)
+          }
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          fromUtils.dispatchMessageToAuthor(client, err.message)
+        }
+      }
+    } else {
+      /**
+       * Handles various interactions.
+       */
+      applyGeneralMsgFns({ msg, client, queue })
+    }
   }
 }

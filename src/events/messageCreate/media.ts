@@ -30,16 +30,7 @@ export const respondToEmbedsAndAttachments = ({
       }
     } catch (err) {
       if (err instanceof Error) {
-        /**
-         * DM's me any errors that occur.
-         */
-        client.users.createDM(process.env.DISCORD_AUTHOR_ID!).then((dm) => {
-          dm.send(
-            err instanceof Error
-              ? err.message
-              : 'An error as occured in respondToEmbedsAndAttachments.'
-          )
-        })
+        fromUtils.dispatchMessageToAuthor(client, err.message)
       }
       console.error(err)
     }

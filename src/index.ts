@@ -18,24 +18,21 @@ const main = async () => {
 
   client.login(process.env.DISCORD_TOKEN)
 
-  client.once('ready', fromEvents.ready.exec)
-
   try {
+    /**
+     * Cache comments on init.
+     */
     new fromUtils.CommentCache()
     fromUtils.cacheCommentBatch()
   } catch (err) {
     if (err instanceof Error) {
-      /**
-       * DM's me any errors that occur.
-       */
-      const dm = await client.users.createDM(process.env.DISCORD_AUTHOR_ID)
-      dm.send(err.message)
+      fromUtils.dispatchMessageToAuthor(client, err.message)
     }
   }
 
   Object.entries(fromEvents).forEach(([name, obj]) => {
     if (obj.once) {
-      // do something
+      client.once(name, obj.exec)
     } else {
       client.on(name, (msg) => obj.exec(msg, client))
     }
