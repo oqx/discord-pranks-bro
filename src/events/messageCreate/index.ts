@@ -2,7 +2,6 @@ import type { Message, Client } from 'discord.js'
 import * as fromMentions from './mentions'
 import * as fromMedia from './media'
 import * as fromUtils from '../../utils'
-import * as fromConstants from '../../constants'
 import * as fromCommands from './commands'
 import compose from 'lodash/fp/compose'
 
@@ -13,11 +12,6 @@ const applyGeneralMsgFns = compose(
   fromMentions.emoteOnCalloutWithoutExplicitMention,
   fromMentions.respondToMention
 )
-
-const fns = fromCommands as Record<
-  string,
-  (client: Client, msg: Message, subcommands: string[]) => void
->
 
 /**
  * @summary Event handler for messageCreate events. Handles
@@ -30,6 +24,7 @@ export const messageCreate = {
      * Handles commands.
      */
     const commands = fromUtils.getCommand(msg.content)
+
     if (
       commands &&
       commands.command &&
@@ -43,13 +38,12 @@ export const messageCreate = {
          *
          * @TODO Refactor this, adding fns to COMMAND_MAP.
          */
-        if (fromConstants.COMMAND_MAP[commands.command] !== 'apply') {
-          msg.reply(fromConstants.COMMAND_MAP[commands.command])
-        } else {
-          const fnName = commands.command.slice(1)
-          if (!!fnName && fns[fnName]) {
-            fns[fnName](client, msg, commands.subcommands)
-          }
+        const cmd = fromCommands.COMMAND_MAP[commands.command]
+        if (typeof cmd === 'string') {
+          msg.reply(cmd)
+        } else if (typeof cmd === 'function') {
+          new cmd(client, msg, commands.subcommands)
+          return
         }
       } catch (err) {
         if (err instanceof Error) {

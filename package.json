@@ -15,7 +15,7 @@
   "keywords": [],
   "scripts": {
     "prebuild": "npx shx rm -rf dist",
-    "start": "npx ts-node src/index.ts --debug",
+    "start": "npx ts-node src/index.ts",
     "build": "npx parcel build src/index.ts --dist-dir dist",
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint --fix \"src/**/*\""

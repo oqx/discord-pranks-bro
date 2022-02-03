@@ -1,7 +1,8 @@
 import * as fromConstants from '../constants'
+import { COMMAND_MAP } from '../events/messageCreate/commands'
 import type * as fromTypes from '../types'
 
-type CommandKeys = keyof typeof fromConstants.COMMAND_MAP
+type CommandKeys = keyof typeof COMMAND_MAP
 
 /**
  * @summary Checks if command is present in string.
@@ -33,5 +34,4 @@ export const getCommand = (content: string): fromTypes.Commands | undefined => {
  */
 export const isValidCommand = (
   command: string | undefined | CommandKeys
-): command is CommandKeys =>
-  !!command && !!fromConstants.COMMAND_MAP[command as CommandKeys]
+): command is CommandKeys => !!command && !!COMMAND_MAP[command as CommandKeys]

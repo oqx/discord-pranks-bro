@@ -5,7 +5,7 @@ import cron from 'node-cron'
  * @param cb
  */
 export const runEveryTwoHours = (cb: () => void) => {
-  cron.schedule('* * 2 * *', () => {
+  cron.schedule('0 0 */1 * *', () => {
     cb()
   })
 }
