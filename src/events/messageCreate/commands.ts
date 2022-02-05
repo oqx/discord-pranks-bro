@@ -2,7 +2,7 @@ import type { Client, Message } from 'discord.js'
 import * as fromConstants from '../../constants'
 import type { Commands } from '../../types'
 import * as fromUtils from '../../utils'
-import { CommentCache } from '../../utils'
+import { CommentCache, getUserFromMention } from '../../utils'
 
 /**
  * This is a troll feature to worry people that they've missed out
@@ -40,33 +40,107 @@ class Tip {
   }
 }
 
+const ROLL_SUCCESS_MSG = [
+  'butt stank',
+  'got rolololololed',
+  'got the old darbee special'
+]
+
+const getRandomSuccessMsg = () =>
+  ROLL_SUCCESS_MSG[Math.floor(Math.random() * ROLL_SUCCESS_MSG.length)]
+
+/**
+ * @TODO Clean up this code. Move it into its own file.
+ */
 class Darbee {
-  static roll(client: Client, msg: Message) {
+  static async roll(client: Client, msg: Message) {
     const members = fromUtils.getLoggedInMembers(msg)
     if (!members) return
-    const memberToHarass = members.random()
-    if (!memberToHarass) return
-    const comment = fromUtils.CommentCache.instance.comments[0]
-    memberToHarass
-      .send(comment.message)
-      .then(() => {
+
+    /**
+     * Iterate through length of members to allow the
+     * message to send to another user if the first user
+     * cannot receive bot messages.
+     */
+    for (let i = 0; i < members.size; i++) {
+      try {
+        const mbr = members.random()
+        if (!mbr) return
+        /**
+         * @TODO Decouple logic below into own func.
+         */
+        const comment = fromUtils.CommentCache.instance.comments[0]
+        await mbr.send(comment.message)
         CommentCache.instance.remove(comment.id)
-        msg.reply(`<@!${memberToHarass.id}> got rolled ayyyeeee`)
-      })
-      .catch((err) => {
-        if (err instanceof Error) {
-          fromUtils.dispatchMessageToAuthor(client, err.message)
+        await msg.reply(`<@!${mbr.id}> ${getRandomSuccessMsg()}`)
+        break
+      } catch (_err) {
+        if (i === members.size) {
+          await msg.reply(
+            `no mf i can shitpost to atm. users must have bot messages enabled.`
+          )
+          break
         }
-      })
+        continue
+      }
+    }
   }
 
+  /**
+   * @summary Sends individual users a PH comment.
+   * @example !darbee creepOn @userName
+   * @param client
+   * @param msg
+   * @param subcommands
+   */
+  static async creepOn(
+    client: Client,
+    msg: Message,
+    subcommands: Commands['subcommands']
+  ) {
+    if (subcommands.length !== 2) {
+      await msg.reply('Command requres two arguments: `!darbee creepOn @user`')
+    }
+    const member = await getUserFromMention(client, subcommands[1])
+    if (!member) return
+    try {
+      /**
+       * @TODO Since this logic is used in roll, it could be
+       * decoupled into its own func.
+       */
+      const comment = fromUtils.CommentCache.instance.comments[0]
+      await member.send(comment.message)
+      CommentCache.instance.remove(comment.id)
+      msg.reply(`dude ${getRandomSuccessMsg()}`)
+    } catch (err) {
+      msg.reply('mf got me blocked.')
+    }
+  }
+
+  /**
+   * @summary Receives subcommands when root command
+   * is called.
+   * @param client
+   * @param msg
+   * @param subcommands
+   */
   constructor(
     client: Client,
     msg: Message,
     subcommands: Commands['subcommands']
   ) {
-    if (subcommands[0] === 'roll') {
-      Darbee.roll(client, msg)
+    /**
+     * @TODO Create subcommand constants and ensure
+     * first subcommand exists in it. Second command --
+     * not so much. It can be a mention.
+     */
+    switch (subcommands[0]) {
+      case 'roll':
+        return Darbee.roll(client, msg)
+      case 'creepOn':
+        return Darbee.creepOn(client, msg, subcommands)
+      default:
+        return
     }
   }
 }

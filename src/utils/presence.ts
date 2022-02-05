@@ -3,7 +3,7 @@ import { ActivitiesOptions } from 'discord.js'
 const PRESENCE_LIST: ActivitiesOptions[] = [
   {
     type: 'STREAMING',
-    name: 'Lil Debbie on Chaturbate'
+    name: 'Chaturbate'
   },
   {
     type: 'WATCHING',

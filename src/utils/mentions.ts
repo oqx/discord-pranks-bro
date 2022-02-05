@@ -1,8 +1,8 @@
-import { Client, MessageMentions } from 'discord.js'
+import { Client } from 'discord.js'
 
 export function getUserFromMention(client: Client, mention: string) {
-  const matches = mention.match(MessageMentions.USERS_PATTERN)
-  if (!matches) return
-  const id = matches[1]
+  const id = mention.replace(/[\\<>@#&!]/g, '')
+  console.log('matches', id)
+  if (!id) return
   return client.users.cache.get(id)
 }
