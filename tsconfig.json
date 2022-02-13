@@ -4,7 +4,6 @@
       "outDir": "dist",
       "sourceMap": true,
       "declaration": false,
-  
       "lib": ["dom", "es6"],
       "module": "commonjs",
       "moduleResolution": "node",
@@ -12,12 +11,11 @@
       "allowSyntheticDefaultImports": true,
       "resolveJsonModule": true,
       "importHelpers": true,
-  
       "strict": true,
       "strictPropertyInitialization": false,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
-      "preserveConstEnums": true
+      "preserveConstEnums": true,
     },
     "include": ["src", "test", "typings", ".eslintrc.js"],
   }
