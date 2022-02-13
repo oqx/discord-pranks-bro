@@ -13,6 +13,9 @@
     "node_modules"
   ],
   "keywords": [],
+  "engines": {
+    "node": "17.x"
+  },
   "scripts": {
     "prebuild": "npx shx rm -rf dist",
     "start": "npx ts-node src/index.ts",
