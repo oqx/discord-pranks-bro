@@ -1,6 +1,49 @@
 # Description
 The worst Club Penguin clone you've never seen.
 
+## Commands
+
+### creepOn
+Darbee sends a user a PG affirmation.
+
+```sh
+!darbee creepOn @<user>
+```
+
+### roll
+Darbee sends a random user on the server a PG affirmation.
+
+```sh
+!darbee roll @<user>
+```
+
+### tip
+Tip a user with BTC.
+
+```sh
+!tip @<user> <number>
+```
+
+### sexyTime
+Plays PG very SFW awesome song.
+
+```
+!sexyTime
+```
+
+### dinnerTime
+Plays very SFW dinner video.
+
+```
+!dinnerTime
+```
+
+### iceberg
+Plays Club Penguin theme song.
+
+```
+!iceberg
+```
 ## Setup
 This project uses `dotenv`. To get started, rename `.env.default` to `.dev`.
 
