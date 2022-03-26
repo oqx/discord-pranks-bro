@@ -5,8 +5,6 @@ import * as fromUtils from '../../utils'
 import * as fromCommands from './commands'
 import compose from 'lodash/fp/compose'
 
-const queue = new Map<string, Message>()
-
 const applyGeneralMsgFns = compose(
   fromMedia.respondToEmbedsAndAttachments,
   fromMentions.emoteOnCalloutWithoutExplicitMention,
@@ -54,7 +52,7 @@ export const messageCreate = {
       /**
        * Handles various interactions.
        */
-      applyGeneralMsgFns({ msg, client, queue })
+      applyGeneralMsgFns({ msg, client })
     }
   }
 }

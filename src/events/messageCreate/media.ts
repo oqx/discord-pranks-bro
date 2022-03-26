@@ -3,12 +3,10 @@ import * as fromUtils from '../../utils'
 
 export const respondToEmbedsAndAttachments = ({
   msg,
-  client,
-  queue
+  client
 }: LinkArgs): LinkArgs => {
   if (msg.attachments.size > 0 || msg.embeds.length > 0) {
     try {
-      queue.set(msg.id, msg)
       /**
        * If comments are running low, retrieve a new batch and add
        * them to CommentCache.
@@ -16,18 +14,11 @@ export const respondToEmbedsAndAttachments = ({
       if (fromUtils.CommentCache.instance.comments.length <= 10) {
         fromUtils.cacheCommentBatch()
       }
-      for (const [key, queuedMsg] of queue.entries()) {
-        /**
-         * Retrieves the first comment and dispatches it to the client.
-         */
-        const { message, id } = fromUtils.CommentCache.instance.comments[0]
-        queuedMsg.reply(message).then(() => queue.delete(key))
-
-        /**
-         * Removes the sent comment from cache.
-         */
-        fromUtils.CommentCache.instance.remove(id)
-      }
+      /**
+       * Retrieves the first comment and dispatches it to the client.
+       */
+      const { message } = fromUtils.CommentCache.instance.comments[0]
+      msg.reply(message)
     } catch (err) {
       if (err instanceof Error) {
         fromUtils.dispatchMessageToAuthor(client, err.message)
@@ -35,5 +26,5 @@ export const respondToEmbedsAndAttachments = ({
       console.error(err)
     }
   }
-  return { msg, client, queue }
+  return { msg, client }
 }
