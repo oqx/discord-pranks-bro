@@ -17,8 +17,13 @@ export const respondToEmbedsAndAttachments = ({
       /**
        * Retrieves the first comment and dispatches it to the client.
        */
-      const { message } = fromUtils.CommentCache.instance.comments[0]
-      msg.reply(message)
+      const { message, id } = fromUtils.CommentCache.instance.comments[0]
+      msg.reply(message).then(() => {
+        /**
+         * Removes the sent comment from cache.
+         */
+        fromUtils.CommentCache.instance.remove(id)
+      })
     } catch (err) {
       if (err instanceof Error) {
         fromUtils.dispatchMessageToAuthor(client, err.message)
